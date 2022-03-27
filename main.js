@@ -21,6 +21,8 @@ const mouse={
 var targetPrefab;
 const fbxLoader = new FBXLoader();
 
+//Create audio sound
+var woodBreak = new Audio("break.mp3");
 
 //Set renderer
 const renderer =new THREE.WebGLRenderer();
@@ -137,6 +139,8 @@ addEventListener('click', (event) => {
 
     score++;
     $("#score").html("SCORE: " + score);
+
+    woodBreak.play();
   }
 })
 
