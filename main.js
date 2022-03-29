@@ -228,3 +228,16 @@ $("#backBtn").click(function() {
   $("#settingsMenu").addClass("invisible");
   $("#menu").removeClass("invisible");
 })
+
+
+//Resets the scene
+$( "#reset" ).click(function() {
+  location.reload();
+});
+
+//Opens the settings
+$( "#settings" ).click(function() {
+  $("#settingsMenu").removeClass("invisible");
+  $("#menu").addClass("invisible");
+});
+
