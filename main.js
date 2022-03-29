@@ -7,7 +7,7 @@ let score=0;
 
 const raycaster = new THREE.Raycaster();
 const scene=new THREE.Scene();
-scene.background = new THREE.Color( 0xefd1b5 );
+scene.background = new THREE.Color(0xefd1b5);
 const camera=new THREE.PerspectiveCamera(75, innerWidth/innerHeight, .1, 1000);
 camera.position.z=10
 
@@ -22,7 +22,7 @@ var targetPrefab;
 const fbxLoader = new FBXLoader();
 
 //Create audio sound
-var woodBreak = new Audio("break.mp3");
+const woodBreak = new Audio("break.mp3");
 
 //Set renderer
 const renderer =new THREE.WebGLRenderer();
@@ -39,6 +39,7 @@ controls.lookSpeed = 0.025;
 const currTarget=[null, null];
 var targetPrefab;
 
+//Loads the target model
 fbxLoader.load(
   'target.fbx',
   (object) => {
@@ -104,6 +105,7 @@ function animate(){
 
 animate();
 
+//Normalized the mouse coordinates
 addEventListener("mousemove", (event) => {
   mouse.x = event.clientX / innerWidth *2 -1;
   mouse.y = -1 * event.clientY/innerHeight * 2 + 1;
@@ -120,7 +122,7 @@ function detectLeftButton(evt) {
 }
 
 addEventListener('click', (event) => {
-  if (detectLeftButton(event)){
+  if (detectLeftButton(event) || !controls.enabled){
     return;
   }
 
@@ -131,20 +133,45 @@ addEventListener('click', (event) => {
   //Checks when target is hit
   if (intersects.length>0){
 
+    woodBreak.play();
     //Removes old target and adds new one
     scene.remove(currTarget[0]);
     scene.remove(currTarget[1]);
 
     createTarget(Math.random()* 10 -5, Math.random() * (10) -5);
 
+    //Updates score
     score++;
     $("#score").html("SCORE: " + score);
-
-    woodBreak.play();
   }
 })
 
-renderer.render(scene, camera);
+
+//Stops the camera from moving when the mouse is off the window/screen
+$(document).mouseleave(function () {
+  controls.enabled=false;
+});
+
+//Resumes camera movement when mouse is on the window/screen
+$(document).mouseenter(function () {
+  if ($("#menu").hasClass("invisible") && $("#settingsMenu").hasClass("invisible")){ 
+    controls.enabled=true;
+  }
+});
+
+//Pauses the game
+$(document).on('keydown', function(event) {
+  if (event.key == "Escape") {
+    controls.enabled=false;
+    $("#menu").removeClass("invisible");
+  }
+});
+
+//Resumes the game 
+$( "#resume" ).click(function() {
+  $("#menu").addClass("invisible");
+  controls.enabled=true;
+});
 
 //Resizes the window
 function onWindowResize() {
@@ -157,12 +184,47 @@ function onWindowResize() {
 
 window.addEventListener('resize', onWindowResize );
 
-//Stops the camera from moving when the mouse is off the window/screen
-$(document).mouseleave(function () {
-  controls.enabled=false;
-});
+// Checks if color is hex
+function isHexColor (hex) {
+  return typeof hex === 'string'
+      && hex.length === 6
+      && !isNaN(Number('0x' + hex))
+}
 
-//Resumes camera movement when mouse is on the window/screen
-$(document).mouseenter(function () {
-  controls.enabled=true;
-});
+//converts hex to rgb
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+//Changes background color
+$("#inputColor").on("input", function() {
+  
+  const value = $("#inputColor").val().substring(1);
+
+  if (!isHexColor(value)){
+    return;
+  }
+  const result = hexToRgb(value);
+  const rgbColor = new THREE.Color("rgb(" +result.r + ", " + result.g + ", " + result.b + ")");
+  scene.background = new THREE.Color(rgbColor);
+})
+
+function getRandInteger(min, max) {
+  return Math.floor(Math.random() * (max - min) ) + min;
+}
+
+//Updates the background color
+$("#changeColor").click(function() {
+  const rgbColor = new THREE.Color("rgb(" +getRandInteger(0, 255) + ", " + getRandInteger(0, 255) + ", " + getRandInteger(0, 255) + ")");
+  scene.background = new THREE.Color(rgbColor);
+})
+
+$("#backBtn").click(function() {
+  $("#settingsMenu").addClass("invisible");
+  $("#menu").removeClass("invisible");
+})
