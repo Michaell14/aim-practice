@@ -43,13 +43,9 @@ var targetPrefab;
 fbxLoader.load(
   'target.fbx',
   (object) => {
-
       object.scale.set(.002, .002, .002)
       targetPrefab=object;
       createTarget(0,0);
-  },
-  (error) => {
-      console.log(error)
   })
 
 //Loads a target
@@ -142,7 +138,7 @@ addEventListener('click', (event) => {
 
     //Updates score
     score++;
-    $("#score").html("SCORE: " + score);
+    $("#score").html(score);
   }
 })
 
@@ -201,6 +197,17 @@ function hexToRgb(hex) {
   } : null;
 }
 
+//converts rgb to hex
+function componentToHex(c) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+
 //Changes background color
 $("#inputColor").on("input", function() {
   
@@ -212,6 +219,8 @@ $("#inputColor").on("input", function() {
   const result = hexToRgb(value);
   const rgbColor = new THREE.Color("rgb(" +result.r + ", " + result.g + ", " + result.b + ")");
   scene.background = new THREE.Color(rgbColor);
+
+  $("#inputColor").val(rgbToHex(result.r, result.g, result.b));
 })
 
 function getRandInteger(min, max) {
@@ -220,8 +229,16 @@ function getRandInteger(min, max) {
 
 //Updates the background color
 $("#changeColor").click(function() {
-  const rgbColor = new THREE.Color("rgb(" +getRandInteger(0, 255) + ", " + getRandInteger(0, 255) + ", " + getRandInteger(0, 255) + ")");
+
+  const result={
+    r: getRandInteger(0, 255),
+    g: getRandInteger(0, 255),
+    b: getRandInteger(0, 255)
+  }
+
+  const rgbColor = new THREE.Color("rgb(" +result.r + ", " + result.g + ", " + result.b + ")");
   scene.background = new THREE.Color(rgbColor);
+  $("#inputColor").val(rgbToHex(result.r, result.g, result.b));
 })
 
 $("#backBtn").click(function() {
